@@ -1,35 +1,32 @@
 # Ember Kitchen — restaurant ops
 
-Dark kitchen: гость заказывает с витрины, кухня видит тикет, менеджер выдаёт. Оплата при получении.
+Dark kitchen: the guest orders from the storefront, the kitchen sees the ticket, the manager hands the order over. Payment on pickup.
 
-**Live:** [restaurant-ops-portal.vercel.app](https://restaurant-ops-portal.vercel.app)  
-Если алиас ещё не подхватился: [ok-oe0glqgw0-memyself2.vercel.app](https://ok-oe0glqgw0-memyself2.vercel.app)
+## Happy path
 
-## Счастливый путь
+1. Guest: `/menu` → cart → checkout (pickup).
+2. Order code at `/order/{CODE}/track`.
+3. The manager accepts the NEW order.
+4. Kitchen: Start → Bump ready. SLA timer, 12 min = late.
+5. The manager marks the order as handed over. The guest sees a full-screen "ready for pickup".
 
-1. Гость: `/menu` → корзина → чекаут (самовывоз).
-2. Код заказа на `/order/{CODE}/track`.
-3. Менеджер принимает NEW.
-4. Кухня: Start → Bump ready. Таймер SLA, 12 мин = late.
-5. Менеджер отмечает выдачу. Гость видит полный экран «можно забирать».
+## Roles
 
-## Роли
-
-| Роль | Вход | Контур |
+| Role | Login | Scope |
 |---|---|---|
-| Менеджер | `manager@ember.local` / `1234` | смена, принять/выдать, 86, аналитика, Z-отчёт |
-| Кухня | `kitchen@ember.local` / `5678` | KDS + 86 |
-| Админ | `admin@ember.local` / `9999` | меню, сотрудники, печать смен |
+| Manager | `manager@ember.local` / `1234` | shift, accept/hand over, 86, analytics, Z-report |
+| Kitchen | `kitchen@ember.local` / `5678` | KDS + 86 |
+| Admin | `admin@ember.local` / `9999` | menu, staff, shift printouts |
 
-86: тап по блюду на доске — на витрине гостя оно гаснет без F5 (пульс 1.2 с).
+86: tap a dish on the board — it goes dark on the guest storefront without a page reload (1.2 s pulse).
 
-## Стек
+## Stack
 
 Next.js 16 · Prisma · Neon Postgres · Vercel.
 
-Пульс `/api/public/pulse` и `/api/staff/pulse` — источник правды для живой витрины и KDS. SSE оставлен как запасной канал, на serverless без шины не опираемся.
+The pulse endpoints `/api/public/pulse` and `/api/staff/pulse` are the source of truth for the live storefront and the KDS. SSE is kept as a fallback channel; on serverless we don't rely on it without a message bus.
 
-## Локально
+## Run locally
 
 ```bash
 cp .env.example .env
